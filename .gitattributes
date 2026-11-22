@@ -1,0 +1,22 @@
+# 跨平台换行符约束
+# 提交进仓库一律用 LF，避免 Windows 上编辑后把脚本改成 CRLF 导致 Linux 执行失败
+
+* text=auto eol=lf
+
+*.sh    text eol=lf
+*.py    text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.toml  text eol=lf
+
+# Windows 原生脚本保留 CRLF
+*.ps1   text eol=crlf
+*.bat   text eol=crlf
+
+# 二进制
+*.png   binary
+*.jpg   binary
+*.pdf   binary
+*.vhdx  binary

@@ -1,0 +1,94 @@
+{
+  "dashboard": {
+    "title": "AI 算力池 · 一张图看懂",
+    "tags": ["ai-pool", "gpu"],
+    "timezone": "browser",
+    "schemaVersion": 39,
+    "refresh": "10s",
+    "time": {"from": "now-30m", "to": "now"},
+    "panels": [
+      {
+        "type": "stat",
+        "title": "显卡在忙吗（利用率 %）",
+        "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
+        "targets": [{"expr": "gpu_utilization_percent", "refId": "A"}],
+        "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background"},
+        "fieldConfig": {"defaults": {"unit": "percent", "max": 100, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 70}, {"color": "red", "value": 90}]}}}
+      },
+      {
+        "type": "stat",
+        "title": "显存占了多少（GB）",
+        "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0},
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
+        "targets": [{"expr": "gpu_memory_used_bytes / 1024 / 1024 / 1024", "refId": "A"}],
+        "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background"},
+        "fieldConfig": {"defaults": {"unit": "none", "decimals": 1, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 20}, {"color": "red", "value": 23}]}}}
+      },
+      {
+        "type": "stat",
+        "title": "排队的活儿（Kueue）",
+        "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0},
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
+        "targets": [{"expr": "sum(kueue_pending_workloads) or vector(0)", "refId": "A"}],
+        "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background"},
+        "fieldConfig": {"defaults": {"unit": "none", "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 1}, {"color": "red", "value": 5}]}}}
+      },
+      {
+        "type": "stat",
+        "title": "温度 / 功耗",
+        "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0},
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
+        "targets": [
+          {"expr": "gpu_temperature_celsius", "refId": "A", "legendFormat": "温度 C"},
+          {"expr": "gpu_power_watts", "refId": "B", "legendFormat": "功耗 W"}
+        ],
+        "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value"}
+      },
+      {
+        "type": "timeseries",
+        "title": "同时有几个请求在跑 / 在等",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
+        "targets": [
+          {"expr": "vllm:num_requests_running", "refId": "A", "legendFormat": "运行中"},
+          {"expr": "vllm:num_requests_waiting", "refId": "B", "legendFormat": "等待中"}
+        ],
+        "fieldConfig": {"defaults": {"unit": "short"}}
+      },
+      {
+        "type": "timeseries",
+        "title": "首字延迟 P99（秒）—— 用户等多久看到第一个字",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6},
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
+        "targets": [
+          {"expr": "histogram_quantile(0.99, sum(rate(vllm:time_to_first_token_seconds_bucket[5m])) by (le))", "refId": "A", "legendFormat": "P99"},
+          {"expr": "histogram_quantile(0.50, sum(rate(vllm:time_to_first_token_seconds_bucket[5m])) by (le))", "refId": "B", "legendFormat": "P50"}
+        ],
+        "fieldConfig": {"defaults": {"unit": "s"}}
+      },
+      {
+        "type": "timeseries",
+        "title": "GPU 利用率与显存（看是否打满）",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
+        "targets": [
+          {"expr": "gpu_utilization_percent", "refId": "A", "legendFormat": "利用率 %"},
+          {"expr": "gpu_memory_used_bytes / 1024 / 1024 / 1024", "refId": "B", "legendFormat": "显存 GB"}
+        ],
+        "fieldConfig": {"defaults": {"unit": "short"}}
+      },
+      {
+        "type": "timeseries",
+        "title": "prefix cache 命中率 —— 省不省钱看这个",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14},
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
+        "targets": [
+          {"expr": "rate(vllm:prefix_cache_hits_total[5m]) / clamp_min(rate(vllm:prefix_cache_queries_total[5m]), 0.001)", "refId": "A", "legendFormat": "命中率"}
+        ],
+        "fieldConfig": {"defaults": {"unit": "percentunit", "max": 1}}
+      }
+    ]
+  },
+  "overwrite": true
+}

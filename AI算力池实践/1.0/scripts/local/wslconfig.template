@@ -1,0 +1,12 @@
+[wsl2]
+# Host has 16GB total; give WSL 11GB, keep ~5GB for Windows
+memory=11GB
+# Dual Xeon E5-2680v4 (28C/56T); give 8 vCPU
+processors=8
+# swap on C: (8GB), used as a buffer during model loading peaks
+swap=8GB
+swapFile=C:\\WSL\\swap.vhdx
+localhostForwarding=true
+
+[experimental]
+autoMemoryReclaim=gradual
