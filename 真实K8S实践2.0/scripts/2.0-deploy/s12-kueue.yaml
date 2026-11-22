@@ -1,0 +1,48 @@
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ResourceFlavor
+metadata: {name: default-flavor}
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata: {name: cluster-queue}
+spec:
+  namespaceSelector: {}
+  resourceGroups:
+    - coveredResources: ["cpu", "memory"]
+      flavors:
+        - name: default-flavor
+          resources:
+            - {name: "cpu", nominalQuota: "1"}
+            - {name: "memory", nominalQuota: "2Gi"}
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: LocalQueue
+metadata: {name: lq, namespace: demo-app}
+spec:
+  clusterQueue: cluster-queue
+---
+apiVersion: batch/v1
+kind: Job
+metadata: {name: q1, namespace: demo-app, labels: {kueue.x-k8s.io/queue-name: lq}}
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: c
+          image: busybox:1.37
+          command: ["sh", "-c", "sleep 120"]
+          resources: {requests: {cpu: "800m", memory: 256Mi}, limits: {cpu: "800m", memory: 256Mi}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata: {name: q2, namespace: demo-app, labels: {kueue.x-k8s.io/queue-name: lq}}
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: c
+          image: busybox:1.37
+          command: ["sh", "-c", "sleep 120"]
+          resources: {requests: {cpu: "800m", memory: 256Mi}, limits: {cpu: "800m", memory: 256Mi}}

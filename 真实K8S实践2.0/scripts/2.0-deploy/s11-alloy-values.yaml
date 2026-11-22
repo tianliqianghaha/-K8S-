@@ -1,0 +1,53 @@
+alloy:
+  configMap:
+    create: true
+    content: |
+      discovery.kubernetes "pods" { role = "pod" }
+      discovery.relabel "pods" {
+        targets = discovery.kubernetes.pods.targets
+        rule { source_labels = ["__meta_kubernetes_namespace"]; target_label = "namespace" }
+        rule { source_labels = ["__meta_kubernetes_pod_name"];  target_label = "pod" }
+        rule { source_labels = ["__meta_kubernetes_pod_container_name"]; target_label = "container" }
+        rule { source_labels = ["__meta_kubernetes_pod_node_name"]; target_label = "node" }
+        rule { source_labels = ["__meta_kubernetes_pod_label_app"]; target_label = "app" }
+      }
+      loki.source.kubernetes "pods" {
+        targets    = discovery.relabel.pods.output
+        forward_to = [loki.write.default.receiver]
+      }
+      loki.write "default" {
+        endpoint { url = "http://loki-gateway.loki.svc.cluster.local/loki/api/v1/push" }
+      }
+
+      // === eBPF 自动埋点（OBI）：应用零改动，从内核拿 span ===
+      otelcol.receiver.ebpf "default" {
+        open_port = 0
+        output {
+          metrics = [otelcol.processor.batch.ebpf.input]
+          traces  = [otelcol.processor.batch.ebpf.input]
+        }
+      }
+      otelcol.processor.batch "ebpf" {
+        output {
+          metrics = [otelcol.exporter.otlp.tempo.input]
+          traces  = [otelcol.exporter.otlp.tempo.input]
+        }
+      }
+      otelcol.exporter.otlp "tempo" {
+        client {
+          endpoint = "otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4317"
+          tls { insecure = true }
+        }
+      }
+controller:
+  type: daemonset
+  tolerations: [{operator: Exists}]
+alloy:
+  securityContext:
+    privileged: true
+    runAsUser: 0
+  mounts:
+    varlog: true
+    dockercontainers: false
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}

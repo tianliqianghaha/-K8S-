@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata: {name: beyla, namespace: monitoring, labels: {app: beyla}}
+spec:
+  selector: {matchLabels: {app: beyla}}
+  template:
+    metadata: {labels: {app: beyla}}
+    spec:
+      hostPID: true
+      containers:
+        - name: beyla
+          image: grafana/beyla:latest
+          securityContext: {privileged: true, runAsUser: 0}
+          env:
+            - {name: BEYLA_OPEN_PORT, value: "8080"}
+            - {name: OTEL_EXPORTER_OTLP_ENDPOINT, value: "http://otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4317"}
+            - {name: OTEL_EXPORTER_OTLP_PROTOCOL, value: "grpc"}
+            - {name: BEYLA_OTEL_METRICS_FEATURES, value: "application"}
+            - {name: BEYLA_KUBE_METADATA_ENABLE, value: "true"}
+          resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {cpu: 300m, memory: 512Mi}}
+          volumeMounts:
+            - {name: btf, mountPath: /sys/kernel/btf, readOnly: true}
+      volumes:
+        - {name: btf, hostPath: {path: /sys/kernel/btf}}

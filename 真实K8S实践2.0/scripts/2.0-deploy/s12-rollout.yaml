@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata: {name: canary, namespace: demo-app}
+spec:
+  replicas: 4
+  selector: {matchLabels: {app: canary}}
+  template:
+    metadata: {labels: {app: canary}}
+    spec:
+      containers:
+        - name: c
+          image: registry.k8s.io/e2e-test-images/agnhost:2.45
+          command: ["/agnhost", "netexec", "--http-port=8080"]
+          resources: {requests: {cpu: 20m, memory: 32Mi}, limits: {cpu: 100m, memory: 64Mi}}
+  strategy:
+    canary:
+      steps:
+        - pause: {duration: 30s}
+        - pause: {duration: 30s}

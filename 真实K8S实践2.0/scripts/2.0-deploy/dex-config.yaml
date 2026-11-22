@@ -1,0 +1,22 @@
+issuer: https://172.23.163.111:5556
+storage:
+  type: memory
+web:
+  http: 0.0.0.0:5556
+  tlsCert: /etc/dex/tls.crt
+  tlsKey: /etc/dex/tls.key
+oauth2:
+  skipApprovalScreen: true
+staticClients:
+  - id: kubelogin
+    secret: hnTtPeognaWYONMoAGBCjxnfB2TzfNJ1
+    name: kubelogin
+    redirectURIs:
+      - http://localhost:8000
+      - http://127.0.0.1:8000
+enablePasswordDB: true
+staticPasswords:
+  - email: viewer@k8s.local
+    hash: "$2y$10$1lD6yQ0dQ3iV9Vf0Zl8UOeVQ9cZ3o0mB2W7gqYb1oUOZ0o9Wz1o9W"
+    username: viewer
+    userID: "1"

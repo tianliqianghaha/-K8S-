@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata: {name: obi, namespace: monitoring, labels: {app: obi}}
+spec:
+  selector: {matchLabels: {app: obi}}
+  template:
+    metadata: {labels: {app: obi}}
+    spec:
+      hostPID: true
+      containers:
+        - name: obi
+          image: otel/opentelemetry-ebpf-instrumentation:latest
+          securityContext: {privileged: true, runAsUser: 0, readOnlyRootFilesystem: false}
+          env:
+            - {name: OTEL_EXPORTER_OTLP_ENDPOINT, value: "http://otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4317"}
+            - {name: OTEL_EXPORTER_OTLP_PROTOCOL, value: "grpc"}
+            - {name: OTEL_EBPF_OPEN_PORT, value: "8080"}
+            - {name: OTEL_EBPF_METRICS_FEATURES, value: "application"}
+          resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {cpu: 300m, memory: 512Mi}}
+          volumeMounts:
+            - {name: btf, mountPath: /sys/kernel/btf, readOnly: true}
+      volumes:
+        - {name: btf, hostPath: {path: /sys/kernel/btf}}

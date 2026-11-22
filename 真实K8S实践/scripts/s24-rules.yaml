@@ -1,0 +1,128 @@
+# 第 8 章 · 探针与 SLO 规则
+# 分级约定：critical=P1（立即叫）/ warning=P2（工作时段）/ info=P3（周报）
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: blackbox-slo-rules
+  namespace: monitoring
+  labels:
+    release: kps
+spec:
+  groups:
+    - name: blackbox.probe
+      interval: 30s
+      rules:
+        - alert: ProbeFailed
+          expr: probe_success == 0
+          for: 2m
+          labels:
+            severity: critical
+            tier: edge
+          annotations:
+            summary: "探针失败：{{ $labels.target_name }}"
+            description: "{{ $labels.instance }}（module={{ $labels.module }}）连续 2 分钟探测失败，用户侧不可用。"
+
+        - alert: ProbeFailedShort
+          expr: probe_success == 0
+          for: 30s
+          labels:
+            severity: warning
+            tier: edge
+          annotations:
+            summary: "探针抖动：{{ $labels.target_name }}"
+            description: "短时失败，可能在滚动或重试中；持续 2 分钟会升级为 P1。"
+
+        - alert: ProbeSlow
+          expr: probe_duration_seconds > 3
+          for: 5m
+          labels:
+            severity: warning
+            tier: edge
+          annotations:
+            summary: "探测变慢：{{ $labels.target_name }}"
+            description: "响应时间 {{ $value | humanizeDuration }}，超过 3s 阈值。"
+
+        - alert: TLSCertExpiringSoon
+          expr: (probe_ssl_earliest_cert_expiry - time()) / 86400 < 21
+          for: 1h
+          labels:
+            severity: warning
+            tier: security
+          annotations:
+            summary: "证书 21 天内到期：{{ $labels.target_name }}"
+            description: "剩余 {{ $value | printf \"%.1f\" }} 天。自动续期若失效需人工介入。"
+
+        - alert: TLSCertExpiringCritical
+          expr: (probe_ssl_earliest_cert_expiry - time()) / 86400 < 7
+          for: 10m
+          labels:
+            severity: critical
+            tier: security
+          annotations:
+            summary: "证书 7 天内到期：{{ $labels.target_name }}"
+            description: "剩余 {{ $value | printf \"%.1f\" }} 天，即将中断服务。"
+
+    - name: blackbox.slo
+      interval: 30s
+      rules:
+        # 入口可用性 SLI：探针成功率（1 分钟 / 5 分钟 / 1 小时 / 6 小时窗口）
+        - record: slo:gateway_availability:ratio_rate1m
+          expr: avg_over_time(probe_success{job="gateway-https"}[1m])
+        - record: slo:gateway_availability:ratio_rate5m
+          expr: avg_over_time(probe_success{job="gateway-https"}[5m])
+        - record: slo:gateway_availability:ratio_rate1h
+          expr: avg_over_time(probe_success{job="gateway-https"}[1h])
+        - record: slo:gateway_availability:ratio_rate6h
+          expr: avg_over_time(probe_success{job="gateway-https"}[6h])
+
+        # SLO 目标 99.9%（30 天），错误预算 0.1%
+        # 多窗口多燃烧率：1h 14.4x 与 6h 6x 同时命中才叫，压制瞬时抖动
+        - alert: GatewaySLOBudgetBurnFast
+          expr: |
+            (1 - slo:gateway_availability:ratio_rate1h) > (14.4 * 0.001)
+            and
+            (1 - slo:gateway_availability:ratio_rate5m) > (14.4 * 0.001)
+          for: 5m
+          labels:
+            severity: critical
+            slo: gateway-availability
+          annotations:
+            summary: "入口 SLO 快速燃烧（1h 内消耗 2% 月预算）"
+            description: "当前 1h 可用性 {{ $value | printf \"%.3f\" }}，远低于 99.9% 目标。"
+
+        - alert: GatewaySLOBudgetBurnSlow
+          expr: |
+            (1 - slo:gateway_availability:ratio_rate6h) > (6 * 0.001)
+            and
+            (1 - slo:gateway_availability:ratio_rate1h) > (6 * 0.001)
+          for: 30m
+          labels:
+            severity: warning
+            slo: gateway-availability
+          annotations:
+            summary: "入口 SLO 慢速燃烧（6h 内持续劣化）"
+            description: "6h 可用性持续低于目标，需要排查根因。"
+
+    - name: blackbox.capacity
+      interval: 60s
+      rules:
+        - alert: LonghornVolumeDegraded
+          expr: longhorn_volume_robustness{robustness="degraded"} > 0
+          for: 10m
+          labels:
+            severity: critical
+            tier: storage
+          annotations:
+            summary: "Longhorn 卷降级：{{ $labels.volume }}"
+            description: "副本不足，节点故障时会丢数据。"
+
+        - alert: LonghornDiskSpaceLow
+          expr: longhorn_node_storage_available_bytes / longhorn_node_storage_capacity_bytes < 0.15
+          for: 15m
+          labels:
+            severity: warning
+            tier: storage
+          annotations:
+            summary: "Longhorn 节点可用空间 <15%：{{ $labels.node }}"
+            description: "空间不足会导致副本无法重建（本次实践撞过一次）。"

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: longhorn-backup-secret
+  namespace: longhorn-system
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: "k8s-8c7b5e76417f"
+  AWS_SECRET_ACCESS_KEY: "St15o7mc1wfGQsZd3oZEvpNbRKHvyK4j"
+  AWS_ENDPOINTS: "http://172.23.163.111:9000"
+  AWS_REGION: "us-east-1"
+---
+apiVersion: longhorn.io/v1beta2
+kind: BackupTarget
+metadata:
+  name: default
+  namespace: longhorn-system
+spec:
+  backupTargetURL: "s3://longhorn-backup@us-east-1/"
+  credentialSecret: longhorn-backup-secret
+  pollInterval: "1m"

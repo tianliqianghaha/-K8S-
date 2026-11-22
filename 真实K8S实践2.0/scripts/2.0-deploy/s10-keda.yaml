@@ -1,0 +1,14 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata: {name: burn-keda, namespace: demo-app}
+spec:
+  scaleTargetRef: {name: burn}
+  minReplicaCount: 0
+  maxReplicaCount: 3
+  cooldownPeriod: 30
+  triggers:
+    - type: prometheus
+      metadata:
+        serverAddress: http://kps-kube-prometheus-stack-prometheus.monitoring:9090
+        query: sum(rate(container_cpu_usage_seconds_total{namespace="demo-app",pod=~"burn.*"}[1m]))
+        threshold: "0.05"

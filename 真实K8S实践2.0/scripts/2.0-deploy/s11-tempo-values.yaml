@@ -1,0 +1,23 @@
+tempo:
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: tempo-traces
+        endpoint: 172.23.163.111:9000
+        access_key: "k8s-8c7b5e76417f"
+        secret_key: "St15o7mc1wfGQsZd3oZEvpNbRKHvyK4j"
+        insecure: true
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+  resources:
+    requests: {cpu: 200m, memory: 512Mi}
+persistence:
+  enabled: true
+  storageClassName: longhorn
+  size: 10Gi

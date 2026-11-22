@@ -1,0 +1,91 @@
+replicas: 2
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 32Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+serviceMonitor:
+  enabled: true
+  labels:
+    release: kps
+  scheme: http
+
+# 探针模块：http 通用 / 内部 CA（入口与 IdP）/ 集群 CA（apiserver）
+config:
+  modules:
+    http_2xx:
+      prober: http
+      timeout: 5s
+      http:
+        valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+        valid_status_codes: [200, 301, 302]
+        method: GET
+        preferred_ip_protocol: ip4
+        follow_redirects: false
+
+    http_2xx_allow403:
+      prober: http
+      timeout: 5s
+      http:
+        valid_http_versions: ["HTTP/1.1"]
+        valid_status_codes: [200, 403]
+        method: GET
+        preferred_ip_protocol: ip4
+
+    https_internal_ca:
+      prober: http
+      timeout: 8s
+      http:
+        valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+        valid_status_codes: [200]
+        method: GET
+        preferred_ip_protocol: ip4
+        tls_config:
+          ca_file: /etc/blackbox-ca/internal-ca.crt
+
+    https_k8s_ca:
+      prober: http
+      timeout: 5s
+      http:
+        valid_status_codes: [200]
+        method: GET
+        preferred_ip_protocol: ip4
+        tls_config:
+          ca_file: /etc/blackbox-ca/k8s-ca.crt
+
+    # Dex 用的是 infra 上自签的 CA（与集群内部 CA 不同），必须单独一份
+    https_dex_ca:
+      prober: http
+      timeout: 8s
+      http:
+        valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+        valid_status_codes: [200]
+        method: GET
+        preferred_ip_protocol: ip4
+        tls_config:
+          ca_file: /etc/blackbox-ca/dex-ca.crt
+
+    tcp_connect:
+      prober: tcp
+      timeout: 5s
+      tcp:
+        preferred_ip_protocol: ip4
+
+# 两个 CA 由外部 Secret 提供（内部 CA 校验入口证书，集群 CA 校验 apiserver）
+extraSecretMounts:
+  - name: blackbox-ca
+    secretName: blackbox-probe-ca
+    mountPath: /etc/blackbox-ca
+    readOnly: true
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]

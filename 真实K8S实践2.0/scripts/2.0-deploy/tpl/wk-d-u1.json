@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "template_name": "hk-spot-wk-d-u1",
+  "region": {
+    "region_id": "cn-hongkong",
+    "zone_id": "cn-hongkong-d",
+    "vpc": {
+      "resolve": "default_vpc"
+    },
+    "vswitch": {
+      "resolve": "default_in_zone"
+    },
+    "security_group": {
+      "resolve": "default_in_vpc"
+    },
+    "required_inbound": [
+      "22/tcp"
+    ]
+  },
+  "instance": {
+    "instance_type": "ecs.u1-c1m4.xlarge",
+    "amount": 1,
+    "instance_charge_type": "PostPaid",
+    "spot_strategy": "SpotAsPriceGo",
+    "spot_duration": 0,
+    "spot_interruption_behavior": "Terminate",
+    "image": {
+      "os": "ubuntu",
+      "version": "26.04",
+      "arch": "x64",
+      "resolve": "describe_images",
+      "match": [
+        "ubuntu_26_04",
+        "Ubuntu 26.04"
+      ],
+      "security_enhancement_strategy": "Active"
+    },
+    "instance_name_prefix": "k8s-wkd1"
+  },
+  "disks": {
+    "system_disk": {
+      "category": "cloud_essd_entry",
+      "size": 50,
+      "delete_with_instance": true
+    },
+    "data_disk": {
+      "category": "cloud_essd",
+      "size": 150,
+      "delete_with_instance": true
+    }
+  },
+  "network": {
+    "internet_charge_type": "PayByTraffic",
+    "internet_max_bandwidth_out": 100,
+    "http_endpoint": "enabled",
+    "http_tokens": "optional"
+  },
+  "identity": {
+    "login_user": "root",
+    "credential_mode": "key_pair",
+    "key_pair_name": null,
+    "password_policy": "runtime_generated",
+    "forbid_plaintext_password": true
+  },
+  "lifecycle": {
+    "max_lifetime_hours": 72,
+    "interruption_notice": "cloud_monitor_event"
+  },
+  "tags": {
+    "project": "k8s-advanced-practice",
+    "role": "worker",
+    "created_by": "aliyun-ecs-one-liner",
+    "zone": "cn-hongkong-d"
+  },
+  "guardrails": {
+    "require_dry_run": true,
+    "require_explicit_confirm": true,
+    "confirm_token_ttl_seconds": 1800,
+    "allow_override_fields": [
+      "amount",
+      "instance_type",
+      "zone_id",
+      "system_disk.size",
+      "data_disk.size",
+      "data_disk.category",
+      "internet_max_bandwidth_out",
+      "max_lifetime_hours"
+    ],
+    "forbid_prepaid": true,
+    "client_token_persist": true,
+    "confirm_poll_timeout_seconds": 300
+  },
+  "fallback": {
+    "candidate_zones": [
+      "cn-hongkong-c",
+      "cn-hongkong-b"
+    ],
+    "candidate_instance_types": [
+      "ecs.e-c1m2.xlarge",
+      "ecs.u1-c1m2.xlarge"
+    ],
+    "disk_category_by_family": {
+      "ecs.e": "cloud_essd_entry",
+      "ecs.u1": "cloud_essd_entry",
+      "default": "cloud_essd"
+    }
+  }
+}

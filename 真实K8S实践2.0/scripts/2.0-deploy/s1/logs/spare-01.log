@@ -1,0 +1,6 @@
+公钥已注入
+base rc=0 :: Firewall stopped and disabled on system startup | base-done: spare-01 172.23.140.193
+kernel rc=0 :: kernel-done: spare-01 fwd=1 bnf=1 thp=[never] | Created symlink '/etc/systemd/system/multi-user.target.wants/disable-thp.service' → '/etc/systemd/system/disable-thp.service'.
+runtime rc=0 :: systemdcgroup: 1 | cri-registry-config_path: 54- config_path = '/etc/containerd/certs.d'
+k8s rc=0 :: hold: cloud-init containerd intel-microcode kubeadm kubectl kubelet runc  | kubelet: enabled=enabled active=inactive
+mount rc=0 :: awk: cmd. line:1:                             ^ unexpected newline or end of string

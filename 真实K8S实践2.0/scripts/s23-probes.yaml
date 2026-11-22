@@ -1,0 +1,158 @@
+# 第 8 章 · 黑盒探针（从集群内看"用户视角"是否可用）
+# 说明：Probe 必须带 label release=kps 才会被 kube-prometheus-stack 的 Prometheus 选中
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: gateway-https
+  namespace: monitoring
+  labels:
+    release: kps
+    tier: edge
+spec:
+  jobName: gateway-https
+  interval: 30s
+  scrapeTimeout: 10s
+  module: https_internal_ca
+  prober:
+    url: blackbox-prometheus-blackbox-exporter.monitoring.svc:9115
+  targets:
+    staticConfig:
+      static:
+        - https://demo.apps.k8s.local:32691/
+      labels:
+        target_name: gateway-https
+        namespaces: apps
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: gateway-http
+  namespace: monitoring
+  labels:
+    release: kps
+    tier: edge
+spec:
+  jobName: gateway-http
+  interval: 30s
+  scrapeTimeout: 10s
+  module: http_2xx
+  prober:
+    url: blackbox-prometheus-blackbox-exporter.monitoring.svc:9115
+  targets:
+    staticConfig:
+      static:
+        - http://demo.apps.k8s.local:31559/
+      labels:
+        target_name: gateway-http
+        expect: "301"
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: apiserver-healthz
+  namespace: monitoring
+  labels:
+    release: kps
+    tier: control-plane
+spec:
+  jobName: apiserver-healthz
+  interval: 30s
+  scrapeTimeout: 10s
+  module: https_k8s_ca
+  prober:
+    url: blackbox-prometheus-blackbox-exporter.monitoring.svc:9115
+  targets:
+    staticConfig:
+      static:
+        - https://10.96.0.1:443/healthz
+      labels:
+        target_name: apiserver
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: dex-oidc
+  namespace: monitoring
+  labels:
+    release: kps
+    tier: identity
+spec:
+  jobName: dex-oidc
+  interval: 30s
+  scrapeTimeout: 10s
+  module: https_dex_ca
+  prober:
+    url: blackbox-prometheus-blackbox-exporter.monitoring.svc:9115
+  targets:
+    staticConfig:
+      static:
+        - https://dex.k8s.local:5556/dex/healthz
+      labels:
+        target_name: dex
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: gitea-api
+  namespace: monitoring
+  labels:
+    release: kps
+    tier: delivery
+spec:
+  jobName: gitea-api
+  interval: 60s
+  scrapeTimeout: 10s
+  module: http_2xx
+  prober:
+    url: blackbox-prometheus-blackbox-exporter.monitoring.svc:9115
+  targets:
+    staticConfig:
+      static:
+        - http://gitea.k8s.local:3000/api/healthz
+      labels:
+        target_name: gitea
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: s3-health
+  namespace: monitoring
+  labels:
+    release: kps
+    tier: storage
+spec:
+  jobName: s3-health
+  interval: 60s
+  scrapeTimeout: 10s
+  module: http_2xx_allow403
+  prober:
+    url: blackbox-prometheus-blackbox-exporter.monitoring.svc:9115
+  targets:
+    staticConfig:
+      static:
+        - http://s3.k8s.local:9000/
+      labels:
+        target_name: object-storage
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: longhorn-ui
+  namespace: monitoring
+  labels:
+    release: kps
+    tier: storage
+spec:
+  jobName: longhorn-ui
+  interval: 60s
+  scrapeTimeout: 10s
+  module: http_2xx
+  prober:
+    url: blackbox-prometheus-blackbox-exporter.monitoring.svc:9115
+  targets:
+    staticConfig:
+      static:
+        - http://longhorn-frontend.longhorn-system.svc/
+      labels:
+        target_name: longhorn

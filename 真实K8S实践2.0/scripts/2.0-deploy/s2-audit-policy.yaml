@@ -1,0 +1,32 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages:
+  - RequestReceived
+rules:
+  # 探针与健康检查不记
+  - level: None
+    nonResourceURLs:
+      - /healthz*
+      - /livez*
+      - /readyz*
+      - /version
+  # system:kube-proxy / kubelet 的只读流不记
+  - level: None
+    users: ["system:kube-proxy"]
+    verbs: ["watch"]
+    resources:
+      - group: ""
+        resources: ["endpoints", "services", "services/status"]
+  # 敏感对象的写操作：记录请求与响应体（能还原"改成了什么"）
+  - level: RequestResponse
+    verbs: ["create", "update", "patch", "delete", "deletecollection"]
+    resources:
+      - group: ""
+        resources: ["secrets", "configmaps", "serviceaccounts", "pods/exec", "pods/portforward"]
+      - group: "rbac.authorization.k8s.io"
+        resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+  # 所有写操作记元数据
+  - level: Metadata
+    verbs: ["create", "update", "patch", "delete", "deletecollection"]
+  # 其余读操作只记元数据
+  - level: Metadata

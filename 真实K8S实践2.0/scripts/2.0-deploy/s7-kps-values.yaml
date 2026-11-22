@@ -1,0 +1,47 @@
+grafana:
+  enabled: true
+  replicas: 2
+  adminPassword: "Grafana-5I-wvHKvQ_cq"
+  persistence:
+    enabled: false
+  service:
+    type: NodePort
+    nodePort: 30300
+  defaultDashboardsEnabled: true
+prometheus:
+  prometheusSpec:
+    replicas: 2
+    retention: 7d
+    retentionSize: "18GB"
+    resources:
+      requests: {cpu: 200m, memory: 512Mi}
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          resources:
+            requests: {storage: 20Gi}
+    podAntiAffinity: hard
+alertmanager:
+  alertmanagerSpec:
+    replicas: 3
+    resources:
+      requests: {cpu: 50m, memory: 64Mi}
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          resources:
+            requests: {storage: 2Gi}
+    podAntiAffinity: hard
+prometheusOperator:
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false

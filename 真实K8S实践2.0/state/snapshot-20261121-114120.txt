@@ -1,0 +1,84 @@
+### 集群版本
+  gitVersion: v1.37.2
+  gitVersion: v1.37.2
+
+### 节点
+cp-1   Ready   control-plane   131m   v1.37.2   172.23.163.109   <none>   Ubuntu 26.04.1 LTS   7.0.0-38-generic (amd64)   containerd://2.2.2
+cp-2   Ready   control-plane   130m   v1.37.2   172.23.163.108   <none>   Ubuntu 26.04.1 LTS   7.0.0-38-generic (amd64)   containerd://2.2.2
+cp-3   Ready   control-plane   130m   v1.37.2   172.23.163.107   <none>   Ubuntu 26.04.1 LTS   7.0.0-38-generic (amd64)   containerd://2.2.2
+wk-1   Ready   <none>          129m   v1.37.2   172.23.119.116   <none>   Ubuntu 26.04.1 LTS   7.0.0-38-generic (amd64)   containerd://2.2.2
+wk-2   Ready   <none>          129m   v1.37.2   172.23.140.191   <none>   Ubuntu 26.04.1 LTS   7.0.0-38-generic (amd64)   containerd://2.2.2
+wk-3   Ready   <none>          129m   v1.37.2   172.23.119.117   <none>   Ubuntu 26.04.1 LTS   7.0.0-38-generic (amd64)   containerd://2.2.2
+wk-4   Ready   <none>          129m   v1.37.2   172.23.140.192   <none>   Ubuntu 26.04.1 LTS   7.0.0-38-generic (amd64)   containerd://2.2.2
+wk-5   Ready   <none>          129m   v1.37.2   172.23.163.110   <none>   Ubuntu 26.04.1 LTS   7.0.0-38-generic (amd64)   containerd://2.2.2
+
+### helm 发布
+alloy         	monitoring     	5	2026-11-21 11:19:07.419682388 +0800 CST	deployed	alloy-1.16.0                   	v1.22.0
+argo-rollouts 	argo-rollouts  	3	2026-11-21 11:16:17.634064928 +0800 CST	deployed	argo-rollouts-2.43.12          	v1.10.2
+argocd        	argocd         	1	2026-11-21 10:35:31.394237205 +0800 CST	deployed	argo-cd-10.18.2                	v3.6.2 
+cilium        	kube-system    	2	2026-11-21 09:44:18.92219327 +0800 CST 	deployed	cilium-1.20.4                  	1.20.4 
+keda          	keda           	1	2026-11-21 10:43:06.818981679 +0800 CST	deployed	keda-2.21.1                    	2.21.1 
+kps           	monitoring     	2	2026-11-21 10:31:30.308437799 +0800 CST	deployed	kube-prometheus-stack-93.4.1   	v0.95.2
+kyverno       	kyverno        	1	2026-11-21 10:37:50.562108523 +0800 CST	deployed	kyverno-3.10.0                 	v1.20.0
+loki          	loki           	1	2026-11-21 10:20:35.082468308 +0800 CST	deployed	loki-7.7.0                     	3.6.20 
+longhorn      	longhorn-system	1	2026-11-21 09:52:57.998940789 +0800 CST	deployed	longhorn-1.13.0                	v1.13.0
+metrics-server	kube-system    	1	2026-11-21 09:54:06.264566816 +0800 CST	deployed	metrics-server-3.13.0          	0.8.0  
+otelcol       	monitoring     	1	2026-11-21 11:01:23.462979513 +0800 CST	deployed	opentelemetry-collector-0.120.0	0.122.1
+tempo         	monitoring     	1	2026-11-21 11:00:18.203043953 +0800 CST	deployed	tempo-1.24.4                   	2.9.0  
+vpa           	vpa            	2	2026-11-21 10:49:37.152855358 +0800 CST	deployed	vertical-pod-autoscaler-11.1.1 	1.5.0  
+
+### 镜像清单
+busybox:1.37
+docker.io/grafana/alloy:v1.22.0 quay.io/prometheus-operator/prometheus-config-reloader:v0.94.2@sha256:a1897c67478bc23434534e91ad3855280771196b1daf17144db9dbcb655bef71
+docker.io/grafana/loki:3.6.11 docker.io/kiwigrid/k8s-sidecar:2.5.0
+docker.io/grafana/tempo:2.9.0
+docker.io/longhornio/csi-attacher:v4.13.0
+docker.io/longhornio/csi-node-driver-registrar:v2.18.0 docker.io/longhornio/livenessprobe:v2.20.0 docker.io/longhornio/longhorn-manager:v1.13.0
+docker.io/longhornio/csi-provisioner:v6.3.0
+docker.io/longhornio/csi-resizer:v2.2.1
+docker.io/longhornio/csi-snapshotter:v8.6.0
+docker.io/longhornio/longhorn-engine:v1.13.0
+docker.io/longhornio/longhorn-instance-manager:v1.13.0
+docker.io/longhornio/longhorn-manager:v1.13.0
+docker.io/longhornio/longhorn-manager:v1.13.0 docker.io/longhornio/longhorn-share-manager:v1.13.0
+docker.io/longhornio/longhorn-ui:v1.13.0
+docker.io/nginxinc/nginx-unprivileged:1.29-alpine
+ecr-public.aws.com/docker/library/redis:8.6.4-alpine
+ghcr.io/dexidp/dex:v2.46.1
+ghcr.io/kedacore/keda:2.21.1
+ghcr.io/kedacore/keda-admission-webhooks:2.21.1
+ghcr.io/kedacore/keda-metrics-apiserver:2.21.1
+grafana/beyla:latest
+nginx:1.27
+otel/opentelemetry-collector-contrib:0.122.1
+quay.io/argoproj/argocd:v3.6.2
+quay.io/argoproj/argo-rollouts:v1.10.2
+quay.io/argoproj/kubectl-argo-rollouts:v1.10.2
+quay.io/cilium/cilium-envoy:v1.39.5-1792733054-8c73b2816bc8239e27f1fd53b271884688137459@sha256:547ab45f6092f681d9f54f3be9fa8fb1e705c9c5dc2df388efe3a52aa6965629
+quay.io/cilium/cilium:v1.20.4@sha256:20fe92e4c86641233a450098c158d2d29085f3419931ab6bf681d2485dedf16e
+quay.io/cilium/hubble-relay:v1.20.4@sha256:cb23408209697ed30d2bc462e1f01eb622ea4423a891458f78bc88d7255bbfc1
+quay.io/cilium/hubble-ui:v0.13.6@sha256:049a80a03585c043d0c3121bdc518c72b0fd42bae07e4bcce0fdb8f1e88041d0 quay.io/cilium/hubble-ui-backend:v0.13.6@sha256:83b3fc763f3d49948c306bf49b08277383e195904b9ca5c0c0022b2112628787
+quay.io/cilium/operator-generic:v1.20.4@sha256:7a7a3489dc66ad67e420d285c8a8d2e169b0957ad15e120f593d27081bf38d82
+quay.io/kiwigrid/k8s-sidecar:2.14.3 quay.io/kiwigrid/k8s-sidecar:2.14.3 docker.io/grafana/grafana:13.3.1-distroless
+quay.io/prometheus/alertmanager:v0.35.0 quay.io/prometheus-operator/prometheus-config-reloader:v0.95.2
+quay.io/prometheus/node-exporter:v1.12.1-distroless
+quay.io/prometheus-operator/prometheus-operator:v0.95.2
+quay.io/prometheus/prometheus:v3.16.0-distroless quay.io/prometheus-operator/prometheus-config-reloader:v0.95.2
+registry.k8s.io/autoscaling/vpa-admission-controller:1.5.1
+registry.k8s.io/autoscaling/vpa-recommender:1.5.1
+registry.k8s.io/autoscaling/vpa-updater:1.5.1
+registry.k8s.io/coredns/coredns:v1.14.6
+registry.k8s.io/e2e-test-images/agnhost:2.45
+registry.k8s.io/e2e-test-images/agnhost:2.47
+registry.k8s.io/etcd:3.7.0-0
+registry.k8s.io/kube-apiserver:v1.37.2
+registry.k8s.io/kube-controller-manager:v1.37.2
+registry.k8s.io/kube-scheduler:v1.37.2
+registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
+registry.k8s.io/kueue/kueue:v0.13.0
+registry.k8s.io/metrics-server/metrics-server:v0.8.0
+reg.kyverno.io/kyverno/background-controller:v1.20.0
+reg.kyverno.io/kyverno/cleanup-controller:v1.20.0
+reg.kyverno.io/kyverno/kyverno:v1.20.0
+reg.kyverno.io/kyverno/reports-controller:v1.20.0
+velero/velero:v1.17.0

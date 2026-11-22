@@ -1,0 +1,71 @@
+### helm
+alloy             	monitoring     	5	2026-11-21 11:19:07.419682388 +0800 CST	deployed	alloy-1.16.0                   	v1.22.0
+argo-rollouts     	argo-rollouts  	3	2026-11-21 11:16:17.634064928 +0800 CST	deployed	argo-rollouts-2.43.12          	v1.10.2
+argocd            	argocd         	1	2026-11-21 10:35:31.394237205 +0800 CST	deployed	argo-cd-10.18.2                	v3.6.2 
+cert-manager      	cert-manager   	1	2026-11-21 11:42:16.070909904 +0800 CST	deployed	cert-manager-v1.19.1           	v1.19.1
+cilium            	kube-system    	9	2026-11-21 13:05:08.160642283 +0800 CST	deployed	cilium-1.20.4                  	1.20.4 
+dra-example-driver	dra-driver     	1	2026-11-21 11:52:20.466131857 +0800 CST	deployed	dra-example-driver-0.0.0-dev   	v0.5.0 
+keda              	keda           	1	2026-11-21 10:43:06.818981679 +0800 CST	deployed	keda-2.21.1                    	2.21.1 
+kps               	monitoring     	2	2026-11-21 10:31:30.308437799 +0800 CST	deployed	kube-prometheus-stack-93.4.1   	v0.95.2
+kyverno           	kyverno        	2	2026-11-21 12:46:14.222883636 +0800 CST	deployed	kyverno-3.10.0                 	v1.20.0
+loki              	loki           	1	2026-11-21 10:20:35.082468308 +0800 CST	deployed	loki-7.7.0                     	3.6.20 
+longhorn          	longhorn-system	1	2026-11-21 09:52:57.998940789 +0800 CST	deployed	longhorn-1.13.0                	v1.13.0
+metrics-server    	kube-system    	1	2026-11-21 09:54:06.264566816 +0800 CST	deployed	metrics-server-3.13.0          	0.8.0  
+otelcol           	monitoring     	1	2026-11-21 11:01:23.462979513 +0800 CST	deployed	opentelemetry-collector-0.120.0	0.122.1
+tempo             	monitoring     	1	2026-11-21 11:00:18.203043953 +0800 CST	deployed	tempo-1.24.4                   	2.9.0  
+vpa               	vpa            	2	2026-11-21 10:49:37.152855358 +0800 CST	deployed	vertical-pod-autoscaler-11.1.1 	1.5.0  
+
+### nodes
+cp-1 Ready v1.37.2 172.23.163.109
+cp-2 Ready v1.37.2 172.23.163.108
+cp-3 Ready v1.37.2 172.23.163.107
+wk-1 Ready v1.37.2 172.23.119.116
+wk-2 Ready v1.37.2 172.23.140.191
+wk-3 Ready v1.37.2 172.23.119.117
+wk-4 Ready v1.37.2 172.23.140.192
+wk-5 Ready v1.37.2 172.23.163.110
+
+### ns
+argo-rollouts argocd cert-manager cilium-secrets default demo-app demo-secrets dra-driver envoy-gateway-system keda kube-node-lease kube-public kube-system kueue-system kyverno loki longhorn-system monitoring mutate-test psa-test pvc-drill restore-check velero verify vpa 
+
+### pvc
+loki storage-loki-0 pvc-6bffbb74-b1f6-4e32-a8fc-75e3729b7a87
+monitoring alertmanager-kps-kube-prometheus-stack-alertmanager-db-alertmanager-kps-kube-prometheus-stack-alertmanager-0 pvc-cc01819c-513b-486d-8e4b-324e72c45882
+monitoring alertmanager-kps-kube-prometheus-stack-alertmanager-db-alertmanager-kps-kube-prometheus-stack-alertmanager-1 pvc-c5a252e7-7b7f-46c5-b5ae-3743f71d7114
+monitoring alertmanager-kps-kube-prometheus-stack-alertmanager-db-alertmanager-kps-kube-prometheus-stack-alertmanager-2 pvc-fa69b32d-605c-4a5f-b596-01e2f53f5bb4
+monitoring prometheus-kps-kube-prometheus-stack-prometheus-db-prometheus-kps-kube-prometheus-stack-prometheus-0 pvc-5bc893cb-5a14-4877-b9da-41222072b396
+monitoring prometheus-kps-kube-prometheus-stack-prometheus-db-prometheus-kps-kube-prometheus-stack-prometheus-1 pvc-40ba14fc-0dac-4364-8085-a99b6ceb9965
+monitoring storage-tempo-0 pvc-8d25e025-b78f-465b-9a11-8845ac59adc6
+pvc-drill data pvc-ac1c68a9-a917-46a4-9fa5-c2de4aa13bbb
+verify pvc-test pvc-726b227f-e00b-409a-a04e-63f3c7f97d6f
+
+### applications
+addon-alloy OutOfSync Healthy
+addon-argo-rollouts OutOfSync Healthy
+addon-cert-manager OutOfSync Healthy
+addon-cilium OutOfSync Healthy
+addon-keda OutOfSync Healthy
+addon-kps OutOfSync Healthy
+addon-loki OutOfSync Healthy
+addon-longhorn OutOfSync Healthy
+addon-metrics-server OutOfSync Healthy
+addon-otelcol OutOfSync Healthy
+addon-tempo OutOfSync Healthy
+addon-vpa OutOfSync Healthy
+demo-app Synced Healthy
+secrets Synced Healthy
+
+### 资源计数
+validatingpolicies.policies.kyverno.io=3
+mutatingadmissionpolicies=1
+deviceclass=1
+resourceslices.resource.k8s.io=5
+scaledobject.kueue.x-k8s.io=0
+workloads.kueue.x-k8s.io=4
+sealedsecrets.bitnami.com=1
+networkpolicy=17
+
+### 状态
+Encryption:              Wireguard       [NodeEncryption: Disabled, cilium_wg0 (Pubkey: oB2/6tef4wxNkvxk8sQ/uukMdcIBlZOqkPnltgBDXBk=, Port: 51871, Peers: 7)]
+gateway_programmed=True
+3
