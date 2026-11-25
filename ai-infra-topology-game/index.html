@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Infra 拓扑拼图 · L1 单机多卡</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181b24;
+    --surface-2: #20242f;
+    --border: #313745;
+    --text: #e6e8ee;
+    --text-dim: #a2a9b8;
+    --blue: #85b7eb;
+    --blue-deep: #185fa5;
+    --amber: #fac775;
+    --amber-deep: #633806;
+    --teal: #5dcaa5;
+    --teal-deep: #0f6e56;
+    --purple: #afa9ec;
+    --purple-deep: #3c3489;
+    --red: #f09595;
+    --red-deep: #791f1f;
+    --green: #97c459;
+    --green-deep: #3b6d11;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  button {
+    font: inherit;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--blue); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  button.primary { background: var(--blue-deep); border-color: var(--blue); }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  header h1 { font-size: 17px; font-weight: 500; margin: 0; }
+  .levels { display: flex; gap: 6px; }
+  .levels button { font-size: 12px; padding: 4px 10px; }
+  .levels button.active { background: var(--blue-deep); border-color: var(--blue); }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .progress { color: var(--text-dim); font-size: 13px; }
+  main {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) minmax(340px, 1.15fr) minmax(280px, 1fr);
+    gap: 14px;
+    padding: 14px 24px 24px;
+    align-items: start;
+  }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    min-width: 0;
+  }
+  .panel h2 { font-size: 14px; font-weight: 500; margin: 0 0 10px; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+  .tabs button { font-size: 12px; padding: 4px 9px; }
+  .tabs button.active { background: var(--blue-deep); border-color: var(--blue); }
+  pre {
+    margin: 0;
+    padding: 10px;
+    background: #0c0e13;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: #c9d3e3;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 11.5px;
+    line-height: 1.55;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .seed-label { color: var(--text-dim); font-size: 12px; margin-top: 8px; }
+  .goal {
+    margin-top: 10px;
+    padding: 10px;
+    border-left: 3px solid var(--amber);
+    background: rgba(250,199,117,0.07);
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+  }
+  .board-tools { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .board-tools button { font-size: 12px; padding: 4px 10px; }
+  .tool-hint { font-size: 11.5px; color: var(--text-dim); }
+  .building {
+    border: 1px dashed var(--blue);
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: rgba(24,95,165,0.10);
+    min-height: 80px;
+  }
+  .building-title { font-size: 13px; font-weight: 500; color: var(--blue); margin-bottom: 8px; }
+  .node {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 3px 6px;
+    margin: 3px 2px 3px 0;
+    cursor: grab;
+    font-size: 12.5px;
+    user-select: none;
+  }
+  .node:hover { border-color: var(--text-dim); }
+  .node.cpu { background: var(--blue-deep); border-color: var(--blue); }
+  .node.bridge { background: var(--purple-deep); border-color: var(--purple); }
+  .node.switch { background: var(--teal-deep); border-color: var(--teal); }
+  .node.gpu { background: var(--green-deep); border-color: var(--green); }
+  .node.nic { background: var(--amber-deep); border-color: var(--amber); }
+  .node.dropover { outline: 2px solid var(--amber); }
+  .cpu-group {
+    display: inline-block;
+    vertical-align: top;
+    margin: 6px 10px 0;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .columns { display: flex; gap: 8px; justify-content: center; margin-top: 6px; flex-wrap: wrap; }
+  .column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding-top: 10px;
+  }
+  .column::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 10px;
+    background: var(--border);
+  }
+  .switch-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-left: 1px solid var(--border);
+    padding-left: 4px;
+    margin-top: 6px;
+  }
+  .dev-row {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border);
+    padding-top: 6px;
+    margin-top: 6px;
+  }
+  .nvlink-stub {
+    color: var(--green);
+    font-size: 11px;
+    text-align: center;
+    margin-top: 6px;
+  }
+  .nvlink-base {
+    border: 1px solid var(--green);
+    background: rgba(59,109,17,0.18);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-top: 8px;
+  }
+  .nvlink-title { font-size: 12px; color: var(--green); }
+  .nvswitch-row { display: flex; gap: 18px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .nvswitch {
+    border: 1px solid var(--green);
+    border-radius: 6px;
+    padding: 3px 12px;
+    font-size: 12px;
+    color: var(--green);
+  }
+  .drop-hint {
+    font-size: 12px;
+    color: var(--text-dim);
+    border: 1px dashed var(--border);
+    border-radius: 7px;
+    padding: 4px 8px;
+    display: inline-block;
+    margin: 3px;
+  }
+  .drop-hint.dropover { outline: 2px solid var(--amber); }
+  .machine-wrap { margin-bottom: 14px; }
+  .machine-title {
+    font-size: 13px; font-weight: 500; color: var(--text);
+    margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
+  }
+  .gpu-cell { display: flex; flex-direction: column; align-items: center; }
+  .bind-row { display: flex; gap: 2px; align-items: center; margin-top: 3px; }
+  .bind-btn {
+    font-size: 10px; padding: 0 3px; line-height: 16px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text-dim); cursor: pointer;
+  }
+  .bind-btn.sel { background: var(--blue-deep); border-color: var(--blue); color: var(--text); }
+  .bind-rel { font-size: 10px; color: var(--amber); margin-left: 3px; }
+  .tor-bar {
+    border: 1px solid var(--amber); background: rgba(250,199,117,0.08);
+    border-radius: 8px; padding: 6px 10px; text-align: center;
+    font-size: 12px; color: var(--amber); margin-top: 6px;
+  }
+  .bind-summary { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+  .cluster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .machine-card {
+    border: 1px solid var(--border); border-radius: 10px; padding: 8px;
+    background: rgba(24,95,165,0.08);
+  }
+  .port-slot {
+    border: 1px dashed var(--border); border-radius: 8px; padding: 6px 8px;
+    margin-top: 6px; min-height: 74px;
+  }
+  .port-slot.dropover { outline: 2px solid var(--amber); }
+  .port-head { display: flex; justify-content: space-between; font-size: 11.5px; }
+  .port-name { color: var(--blue); font-weight: 500; }
+  .port-status.bad { color: var(--red); }
+  .port-status.warn { color: var(--amber); }
+  .port-status.ok { color: var(--green); }
+  .port-flows { display: flex; flex-wrap: wrap; gap: 3px; min-height: 20px; margin: 4px 0; }
+  .flow-chip {
+    font-size: 11px; padding: 1px 6px; border-radius: 5px;
+    background: var(--purple-deep); border: 1px solid var(--purple);
+    cursor: grab; user-select: none;
+  }
+  .load-bar { height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden; }
+  .load-fill { height: 100%; background: var(--teal); }
+  .port-slot.is-bottleneck { border-color: var(--red); background: rgba(121,31,31,0.2); }
+  .port-slot.is-bottleneck .load-fill { background: var(--red); }
+  .port-meta { font-size: 10.5px; color: var(--text-dim); margin-top: 3px; }
+  .budget-row { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
+  .budget-row.bad { color: var(--red); }
+  .budget-total { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 13px; }
+  .cluster-note { font-size: 11.5px; color: var(--text-dim); margin-top: 8px; }
+  .tray-title { font-size: 13px; color: var(--text-dim); margin: 10px 0 4px; }
+  #tray { min-height: 40px; }
+  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .feedback { margin-top: 10px; font-size: 13px; }
+  .feedback.ok { color: var(--green); }
+  .feedback.bad { color: var(--red); }
+  .diff-item {
+    padding: 6px 8px;
+    margin-top: 5px;
+    border-left: 2px solid var(--red);
+    background: rgba(121,31,31,0.25);
+    border-radius: 0 6px 6px 0;
+    font-size: 12.5px;
+  }
+  .quiz { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .quiz h3 { font-size: 13px; font-weight: 500; margin: 0 0 6px; }
+  .quiz label { display: block; font-size: 13px; margin: 4px 0; cursor: pointer; }
+  .quiz .why { color: var(--text-dim); font-size: 12px; margin-top: 4px; }
+  .tag { font-size: 11px; color: var(--text-dim); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; }
+  .legend { font-size: 11.5px; color: var(--text-dim); margin-top: 8px; }
+  @media (max-width: 1100px) {
+    main { grid-template-columns: 1fr 1fr; }
+    #board-panel { grid-column: 1 / -1; order: -1; }
+  }
+  @media (max-width: 720px) {
+    main { grid-template-columns: 1fr; padding: 10px; }
+    #board-panel { grid-column: auto; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Infra 拓扑拼图</h1>
+  <div class="levels">
+    <button class="active" data-level="1">L1 单机多卡</button>
+    <button data-level="2">L2 双机多卡</button>
+    <button data-level="3">L3 多机多卡</button>
+  </div>
+  <div class="header-right">
+    <span class="progress" id="progress">已解 0 题</span>
+    <button id="btn-hint">给一条提示</button>
+    <button id="btn-new" class="primary">换一题</button>
+  </div>
+</header>
+<main>
+  <section class="panel" id="task-panel">
+    <h2>题目 · 读命令，还原这台机器</h2>
+    <div class="tabs">
+      <button data-tab="topo" class="active">nvidia-smi topo -m</button>
+      <button data-tab="lscpu">lscpu</button>
+      <button data-tab="smi">nvidia-smi</button>
+    </div>
+    <pre id="cmd-output"></pre>
+    <div class="seed-label" id="seed-label"></div>
+    <div class="goal" id="goal-text">
+      目标：把右侧零件拖到正确的层级里，让你摆出的拓扑表和题目给的<strong>一模一样</strong>。
+      卡片上的 <span class="tag">PIX</span> <span class="tag">NODE</span> <span class="tag">SYS</span> 说的是远近，不是型号。
+    </div>
+    <div class="legend" id="legend-text">
+      同屋 PIX · 同楼 NODE · 跨楼 SYS · 卡间专线 NVn。碰头的地方越高，路越长。
+    </div>
+  </section>
+
+  <section class="panel" id="board-panel">
+    <h2>拼装区 · 把零件拖进正确的框</h2>
+    <div class="board-tools">
+      <button id="btn-undo" disabled>↩ 撤销一步</button>
+      <button id="btn-redo" disabled>↪ 重做一步</button>
+      <span class="tool-hint">Ctrl+Z 后退 · Ctrl+Y 重做 · 双击零件送回托盘</span>
+    </div>
+    <div id="board"></div>
+    <div class="tray-title">未放置的零件（拖回这里可以取下）</div>
+    <div id="tray"></div>
+  </section>
+
+  <section class="panel" id="check-panel">
+    <h2>你的拓扑表 · 实时反算</h2>
+    <pre id="player-topo"></pre>
+    <div class="actions">
+      <button id="btn-submit" class="primary">提交比对</button>
+      <button id="btn-reset">重摆本题</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <div class="quiz" id="quiz" hidden>
+      <h3>顺手核对几个数（都能从命令和上节课推出来）</h3>
+      <div id="quiz-items"></div>
+      <button id="btn-quiz-check">核对答案</button>
+      <div id="quiz-result"></div>
+    </div>
+  </section>
+</main>
+<script src="engine.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
