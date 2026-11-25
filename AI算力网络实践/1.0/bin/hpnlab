@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# ============================================================================
+# hpnlab —— 统一入口，省得记一堆路径
+#
+#   ./bin/hpnlab check             环境体检
+#   ./bin/hpnlab probe             云网络通透性探路
+#   ./bin/hpnlab up                建拓扑
+#   ./bin/hpnlab verify            验收
+#   ./bin/hpnlab rtt [n]           时延分布
+#   ./bin/hpnlab watch [秒]        逐秒采样
+#   ./bin/hpnlab fault <子命令>    故障注入
+#   ./bin/hpnlab send / recv       多路径原型
+#   ./bin/hpnlab coll run ...      集合通信流量模拟（ring/tree/a2a/pipe）
+#   ./bin/hpnlab qos up|test|show   QoS 分级实验
+#   ./bin/hpnlab status / down     看状态 / 拆拓扑
+# ============================================================================
+set -uo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "${HERE}/.." && pwd)"
+
+usage() {
+  sed -n '5,15p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+}
+
+case "${1:-}" in
+  check)  shift; bash "${ROOT}/bin/00-preflight.sh" "$@" ;;
+  probe)  shift; bash "${ROOT}/bin/10-probe.sh" "$@" ;;
+  up)     shift; bash "${ROOT}/bin/20-topology.sh" up "$@" ;;
+  down)   shift; bash "${ROOT}/bin/20-topology.sh" down "$@" ;;
+  status) shift; bash "${ROOT}/bin/20-topology.sh" status "$@" ;;
+  verify) shift; bash "${ROOT}/bin/50-verify.sh" "$@" ;;
+  rtt)    shift; bash "${ROOT}/bin/40-observe.sh" rtt "$@" ;;
+  watch)  shift; bash "${ROOT}/bin/40-observe.sh" watch "$@" ;;
+  snap)   shift; bash "${ROOT}/bin/40-observe.sh" snap "$@" ;;
+  stats)  shift; bash "${ROOT}/bin/40-observe.sh" stats "$@" ;;
+  fault)  shift; bash "${ROOT}/bin/30-fault.sh" "$@" ;;
+  send)   shift; python3 "${ROOT}/app/mrc_lite.py" send "$@" ;;
+  recv)   shift; python3 "${ROOT}/app/mrc_lite.py" recv "$@" ;;
+  coll)   shift; python3 "${ROOT}/app/collsim.py" "$@" ;;
+  qos)    shift; bash "${ROOT}/bin/60-qos.sh" "$@" ;;
+  *)      usage ;;
+esac

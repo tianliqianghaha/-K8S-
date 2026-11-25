@@ -1,0 +1,6 @@
+name=hpn2
+role=b
+instance_id=i-j6chkox2vui4bu229jdm
+private_v4=172.23.163.102
+ipv6=240b:4001:1ed:2e02:2a60:59b3:348:f9a5
+public_ip=47.238.186.52
