@@ -1,0 +1,30 @@
+### routes main
+240b:4001:1ed:2e02::/64 dev eth0 proto ra metric 100 pref medium
+fcbb:bb00:2::/48  encap seg6local action End flavors next-csid lblen 32 nflen 16 dev eth0 metric 1024 pref medium
+fcbb:bb00:e000::/48 via 240b:4001:1ed:2e02:2a60:59b3:348:f9a5 dev eth0 metric 1024 pref medium
+fe80::/64 dev eth0 proto kernel metric 256 pref medium
+default nhid 1928003861 via fe80::ecff:ffff:feff:ffff dev eth0 proto ra metric 100 expires 8953sec pref medium
+
+### routes table all
+240b:4001:1ed:2e02::/64 dev eth0 proto ra metric 100 pref medium
+fcbb:bb00:2::/48  encap seg6local action End flavors next-csid lblen 32 nflen 16 dev eth0 metric 1024 pref medium
+fcbb:bb00:e000::/48 via 240b:4001:1ed:2e02:2a60:59b3:348:f9a5 dev eth0 metric 1024 pref medium
+fe80::/64 dev eth0 proto kernel metric 256 pref medium
+default nhid 1928003861 via fe80::ecff:ffff:feff:ffff dev eth0 proto ra metric 100 expires 8953sec pref medium
+local ::1 dev lo table local proto kernel metric 0 pref medium
+local 240b:4001:1ed:2e02:2a60:59b3:348:f9a6 dev eth0 table local proto kernel metric 0 pref medium
+anycast fe80:: dev eth0 table local proto kernel metric 0 pref medium
+local fe80::216:3eff:fe15:7d76 dev eth0 table local proto kernel metric 0 pref medium
+multicast ff00::/8 dev eth0 table local proto kernel metric 256 pref medium
+
+### rules
+0:	from all lookup local
+32766:	from all lookup main
+
+### neigh
+240b:4001:1ed:2e02:2a60:59b3:348:f9a5 dev eth0 lladdr ee:ff:ff:ff:ff:ff router STALE 
+240b:4001:1ed:2e02:2a60:59b3:348:f9a7 dev eth0 lladdr ee:ff:ff:ff:ff:ff router STALE 
+fe80::ecff:ffff:feff:ffff dev eth0 lladdr ee:ff:ff:ff:ff:ff router REACHABLE 
+
+### seg6local
+fcbb:bb00:2::/48  encap seg6local action End flavors next-csid lblen 32 nflen 16 dev eth0 metric 1024 pref medium

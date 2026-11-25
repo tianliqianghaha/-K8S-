@@ -1,0 +1,38 @@
+[
+  {
+    "InstanceId": "i-j6chkox2vui4bu229jdl",
+    "Ipv6": [
+      "240b:4001:1ed:2e02:2a60:59b3:348:f9a7"
+    ],
+    "MacAddress": "00:16:3e:15:7d:74",
+    "NetworkInterfaceId": "eni-j6chkox2vui4bu22cv5b",
+    "PrivateIp": "172.23.163.103",
+    "SourceDestCheck": false,
+    "Type": "Primary",
+    "VSwitchId": "vsw-j6c11dksdhw9isjz5eahg"
+  },
+  {
+    "InstanceId": "i-j6chkox2vui4bu229jdn",
+    "Ipv6": [
+      "240b:4001:1ed:2e02:2a60:59b3:348:f9a6"
+    ],
+    "MacAddress": "00:16:3e:15:7d:76",
+    "NetworkInterfaceId": "eni-j6chkox2vui4bu22cv5f",
+    "PrivateIp": "172.23.163.104",
+    "SourceDestCheck": false,
+    "Type": "Primary",
+    "VSwitchId": "vsw-j6c11dksdhw9isjz5eahg"
+  },
+  {
+    "InstanceId": "i-j6chkox2vui4bu229jdm",
+    "Ipv6": [
+      "240b:4001:1ed:2e02:2a60:59b3:348:f9a5"
+    ],
+    "MacAddress": "00:16:3e:15:7d:72",
+    "NetworkInterfaceId": "eni-j6chkox2vui4bu22cv5d",
+    "PrivateIp": "172.23.163.102",
+    "SourceDestCheck": false,
+    "Type": "Primary",
+    "VSwitchId": "vsw-j6c11dksdhw9isjz5eahg"
+  }
+]

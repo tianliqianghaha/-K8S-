@@ -1,0 +1,236 @@
+[
+  {
+    "AutoReleaseTime": "2026-11-25T15:04Z",
+    "Cpu": 2,
+    "CreationTime": "2026-11-25T03:04Z",
+    "DeletionProtection": false,
+    "EipAddress": {
+      "AllocationId": "",
+      "InternetChargeType": "",
+      "IpAddress": ""
+    },
+    "ExpiredTime": "2099-12-31T15:59Z",
+    "ImageId": "ubuntu_26_04_x64_20G_alibase_20261023.vhd",
+    "InstanceChargeType": "PostPaid",
+    "InstanceId": "i-j6chkox2vui4bu229jdl",
+    "InstanceName": "hpn1",
+    "InstanceType": "ecs.e-c1m2.large",
+    "KeyPairName": null,
+    "Memory": 4096,
+    "NetworkInterfaces": {
+      "NetworkInterface": [
+        {
+          "MacAddress": "00:16:3e:15:7d:74",
+          "NetworkInterfaceId": "eni-j6chkox2vui4bu22cv5b",
+          "PrimaryIpAddress": "172.23.163.103",
+          "PrivateIpSets": {
+            "PrivateIpSet": [
+              {
+                "Primary": true,
+                "PrivateIpAddress": "172.23.163.103"
+              }
+            ]
+          },
+          "Type": "Primary"
+        }
+      ]
+    },
+    "OSType": "linux",
+    "PublicIpAddress": {
+      "IpAddress": [
+        "8.218.142.86"
+      ]
+    },
+    "SecurityGroupIds": {
+      "SecurityGroupId": [
+        "sg-j6ce83xhynyybp9fc1rd"
+      ]
+    },
+    "SpotPriceLimit": 0.0,
+    "SpotStrategy": "SpotAsPriceGo",
+    "Status": "Running",
+    "Tags": {
+      "Tag": [
+        {
+          "TagKey": "created_by",
+          "TagValue": "aliyun-ecs-one-liner"
+        },
+        {
+          "TagKey": "purpose",
+          "TagValue": "hpn-v6-lab3"
+        },
+        {
+          "TagKey": "acs:ecs:payType",
+          "TagValue": "spot"
+        }
+      ]
+    },
+    "VpcAttributes": {
+      "NatIpAddress": "",
+      "PrivateIpAddress": {
+        "IpAddress": [
+          "172.23.163.103"
+        ]
+      },
+      "VSwitchId": "vsw-j6c11dksdhw9isjz5eahg",
+      "VpcId": "vpc-j6cudzxincue05yd4tuhy"
+    },
+    "ZoneId": "cn-hongkong-c"
+  },
+  {
+    "AutoReleaseTime": "2026-11-25T15:04Z",
+    "Cpu": 2,
+    "CreationTime": "2026-11-25T03:04Z",
+    "DeletionProtection": false,
+    "EipAddress": {
+      "AllocationId": "",
+      "InternetChargeType": "",
+      "IpAddress": ""
+    },
+    "ExpiredTime": "2099-12-31T15:59Z",
+    "ImageId": "ubuntu_26_04_x64_20G_alibase_20261023.vhd",
+    "InstanceChargeType": "PostPaid",
+    "InstanceId": "i-j6chkox2vui4bu229jdm",
+    "InstanceName": "hpn2",
+    "InstanceType": "ecs.e-c1m2.large",
+    "KeyPairName": null,
+    "Memory": 4096,
+    "NetworkInterfaces": {
+      "NetworkInterface": [
+        {
+          "MacAddress": "00:16:3e:15:7d:72",
+          "NetworkInterfaceId": "eni-j6chkox2vui4bu22cv5d",
+          "PrimaryIpAddress": "172.23.163.102",
+          "PrivateIpSets": {
+            "PrivateIpSet": [
+              {
+                "Primary": true,
+                "PrivateIpAddress": "172.23.163.102"
+              }
+            ]
+          },
+          "Type": "Primary"
+        }
+      ]
+    },
+    "OSType": "linux",
+    "PublicIpAddress": {
+      "IpAddress": [
+        "47.238.186.52"
+      ]
+    },
+    "SecurityGroupIds": {
+      "SecurityGroupId": [
+        "sg-j6ce83xhynyybp9fc1rd"
+      ]
+    },
+    "SpotPriceLimit": 0.0,
+    "SpotStrategy": "SpotAsPriceGo",
+    "Status": "Running",
+    "Tags": {
+      "Tag": [
+        {
+          "TagKey": "created_by",
+          "TagValue": "aliyun-ecs-one-liner"
+        },
+        {
+          "TagKey": "purpose",
+          "TagValue": "hpn-v6-lab3"
+        },
+        {
+          "TagKey": "acs:ecs:payType",
+          "TagValue": "spot"
+        }
+      ]
+    },
+    "VpcAttributes": {
+      "NatIpAddress": "",
+      "PrivateIpAddress": {
+        "IpAddress": [
+          "172.23.163.102"
+        ]
+      },
+      "VSwitchId": "vsw-j6c11dksdhw9isjz5eahg",
+      "VpcId": "vpc-j6cudzxincue05yd4tuhy"
+    },
+    "ZoneId": "cn-hongkong-c"
+  },
+  {
+    "AutoReleaseTime": "2026-11-25T15:04Z",
+    "Cpu": 2,
+    "CreationTime": "2026-11-25T03:04Z",
+    "DeletionProtection": false,
+    "EipAddress": {
+      "AllocationId": "",
+      "InternetChargeType": "",
+      "IpAddress": ""
+    },
+    "ExpiredTime": "2099-12-31T15:59Z",
+    "ImageId": "ubuntu_26_04_x64_20G_alibase_20261023.vhd",
+    "InstanceChargeType": "PostPaid",
+    "InstanceId": "i-j6chkox2vui4bu229jdn",
+    "InstanceName": "hpn3",
+    "InstanceType": "ecs.e-c1m2.large",
+    "KeyPairName": null,
+    "Memory": 4096,
+    "NetworkInterfaces": {
+      "NetworkInterface": [
+        {
+          "MacAddress": "00:16:3e:15:7d:76",
+          "NetworkInterfaceId": "eni-j6chkox2vui4bu22cv5f",
+          "PrimaryIpAddress": "172.23.163.104",
+          "PrivateIpSets": {
+            "PrivateIpSet": [
+              {
+                "Primary": true,
+                "PrivateIpAddress": "172.23.163.104"
+              }
+            ]
+          },
+          "Type": "Primary"
+        }
+      ]
+    },
+    "OSType": "linux",
+    "PublicIpAddress": {
+      "IpAddress": [
+        "47.238.170.198"
+      ]
+    },
+    "SecurityGroupIds": {
+      "SecurityGroupId": [
+        "sg-j6ce83xhynyybp9fc1rd"
+      ]
+    },
+    "SpotPriceLimit": 0.0,
+    "SpotStrategy": "SpotAsPriceGo",
+    "Status": "Running",
+    "Tags": {
+      "Tag": [
+        {
+          "TagKey": "created_by",
+          "TagValue": "aliyun-ecs-one-liner"
+        },
+        {
+          "TagKey": "purpose",
+          "TagValue": "hpn-v6-lab3"
+        },
+        {
+          "TagKey": "acs:ecs:payType",
+          "TagValue": "spot"
+        }
+      ]
+    },
+    "VpcAttributes": {
+      "NatIpAddress": "",
+      "PrivateIpAddress": {
+        "IpAddress": [
+          "172.23.163.104"
+        ]
+      },
+      "VSwitchId": "vsw-j6c11dksdhw9isjz5eahg",
+      "VpcId": "vpc-j6cudzxincue05yd4tuhy"
+    },
+    "ZoneId": "cn-hongkong-c"
+  }
+]

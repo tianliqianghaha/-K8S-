@@ -1,0 +1,46 @@
+### routes main
+240b:4001:1ed:2e02::/64 dev eth0 proto ra metric 100 pref medium
+fcbb:bb00:e000::/64  encap seg6local action End.DT6 table local dev eth0 metric 1024 pref medium
+fcbb:bb00:ffff:2::1 dev lo proto kernel metric 256 pref medium
+fcbb:bb00:ffff:2::2 dev lo proto kernel metric 256 pref medium
+fcbb:bb00:ffff:2::3 dev lo proto kernel metric 256 pref medium
+fcbb:bb00:ffff:3::1 dev lo proto kernel metric 256 pref medium
+fd00:b0b0::1 dev svc0 proto kernel metric 256 pref medium
+fe80::/64 dev eth0 proto kernel metric 256 pref medium
+fe80::/64 dev svc0 proto kernel metric 256 pref medium
+default nhid 3793300907 via fe80::ecff:ffff:feff:ffff dev eth0 proto ra metric 100 expires 8991sec pref medium
+
+### routes table all
+240b:4001:1ed:2e02::/64 dev eth0 proto ra metric 100 pref medium
+fcbb:bb00:e000::/64  encap seg6local action End.DT6 table local dev eth0 metric 1024 pref medium
+fcbb:bb00:ffff:2::1 dev lo proto kernel metric 256 pref medium
+fcbb:bb00:ffff:2::2 dev lo proto kernel metric 256 pref medium
+fcbb:bb00:ffff:2::3 dev lo proto kernel metric 256 pref medium
+fcbb:bb00:ffff:3::1 dev lo proto kernel metric 256 pref medium
+fd00:b0b0::1 dev svc0 proto kernel metric 256 pref medium
+fe80::/64 dev eth0 proto kernel metric 256 pref medium
+fe80::/64 dev svc0 proto kernel metric 256 pref medium
+default nhid 3793300907 via fe80::ecff:ffff:feff:ffff dev eth0 proto ra metric 100 expires 8991sec pref medium
+local ::1 dev lo table local proto kernel metric 0 pref medium
+local 240b:4001:1ed:2e02:2a60:59b3:348:f9a5 dev eth0 table local proto kernel metric 0 pref medium
+local fcbb:bb00:ffff:2::1 dev lo table local proto kernel metric 0 pref medium
+local fcbb:bb00:ffff:2::2 dev lo table local proto kernel metric 0 pref medium
+local fcbb:bb00:ffff:2::3 dev lo table local proto kernel metric 0 pref medium
+local fcbb:bb00:ffff:3::1 dev lo table local proto kernel metric 0 pref medium
+local fd00:b0b0::1 dev svc0 table local proto kernel metric 0 pref medium
+local fe80::216:3eff:fe15:7d72 dev eth0 table local proto kernel metric 0 pref medium
+local fe80::ac00:80ff:fede:52a2 dev svc0 table local proto kernel metric 0 pref medium
+multicast ff00::/8 dev eth0 table local proto kernel metric 256 pref medium
+multicast ff00::/8 dev svc0 table local proto kernel metric 256 pref medium
+
+### rules
+0:	from all lookup local
+32766:	from all lookup main
+
+### neigh
+240b:4001:1ed:2e02:2a60:59b3:348:f9a6 dev eth0 lladdr ee:ff:ff:ff:ff:ff router STALE 
+fe80::ecff:ffff:feff:ffff dev eth0 lladdr ee:ff:ff:ff:ff:ff router STALE 
+240b:4001:1ed:2e02:2a60:59b3:348:f9a7 dev eth0 lladdr ee:ff:ff:ff:ff:ff router STALE 
+
+### seg6local
+fcbb:bb00:e000::/64  encap seg6local action End.DT6 table local dev eth0 metric 1024 pref medium

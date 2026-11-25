@@ -1,0 +1,16 @@
+{
+  "CidrBlock": "172.16.0.0/12",
+  "CreationTime": "2026-07-02T09:44:23Z",
+  "Ipv6CidrBlocks": {
+    "Ipv6CidrBlock": [
+      {
+        "Ipv6CidrBlock": "240b:4001:1ed:2e00::/56",
+        "Ipv6Isp": "BGP"
+      }
+    ]
+  },
+  "RouteTableIds": null,
+  "Status": "Available",
+  "VpcId": "vpc-j6cudzxincue05yd4tuhy",
+  "VpcName": ""
+}

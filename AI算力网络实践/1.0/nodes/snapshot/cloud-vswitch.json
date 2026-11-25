@@ -1,0 +1,14 @@
+{
+  "AvailableIpAddressCount": 4088,
+  "CidrBlock": "172.23.160.0/20",
+  "CreationTime": "2026-07-02T09:44:26Z",
+  "Ipv6CidrBlock": "240b:4001:1ed:2e02::/64",
+  "RouteTable": {
+    "RouteTableId": "vtb-j6c4mn7ednm7qq9fsbhyg",
+    "RouteTableType": "System"
+  },
+  "VSwitchId": "vsw-j6c11dksdhw9isjz5eahg",
+  "VSwitchName": "",
+  "VpcId": "vpc-j6cudzxincue05yd4tuhy",
+  "ZoneId": "cn-hongkong-c"
+}

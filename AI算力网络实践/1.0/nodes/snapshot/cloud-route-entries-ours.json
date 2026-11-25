@@ -1,0 +1,38 @@
+[
+  {
+    "RouteEntryId": "rte-j6cemndamk5m81yrv0dnz",
+    "DestinationCidrBlock": "fcbb:bb00:2::/48",
+    "NextHopType": "Instance",
+    "NextHopId": "i-j6chkox2vui4bu229jdn",
+    "RouteEntryName": "transit uSID->c",
+    "IpVersion": "ipv6",
+    "Type": "Custom",
+    "Origin": "CustomCreate",
+    "Status": "Available",
+    "GmtModified": "2026-11-25T03:16:04Z"
+  },
+  {
+    "RouteEntryId": "rte-j6cn5sixcleife358zmmm",
+    "DestinationCidrBlock": "fcbb:bb00:e000::/48",
+    "NextHopType": "Instance",
+    "NextHopId": "i-j6chkox2vui4bu229jdm",
+    "RouteEntryName": "tail uSID->b",
+    "IpVersion": "ipv6",
+    "Type": "Custom",
+    "Origin": "CustomCreate",
+    "Status": "Available",
+    "GmtModified": "2026-11-25T03:16:05Z"
+  },
+  {
+    "RouteEntryId": "rte-j6cr2qp5snwlu5acjj6mq",
+    "DestinationCidrBlock": "fcbb:bb00:ffff::/48",
+    "NextHopType": "Instance",
+    "NextHopId": "i-j6chkox2vui4bu229jdn",
+    "RouteEntryName": "probe->c",
+    "IpVersion": "ipv6",
+    "Type": "Custom",
+    "Origin": "CustomCreate",
+    "Status": "Available",
+    "GmtModified": "2026-11-25T03:16:03Z"
+  }
+]
