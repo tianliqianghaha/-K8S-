@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Infra 认知训练场</title>
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+
+<div class="con" id="con">
+  <div class="con-head">
+    <span class="con-t">取证终端 <em id="con-host">-</em></span>
+    <span class="con-hint">help 看命令 · Esc 收起</span>
+    <button class="con-x" id="con-close">收起</button>
+  </div>
+  <div class="con-out" id="con-out"></div>
+  <form class="con-in" id="con-form">
+    <span class="con-p">$</span>
+    <input id="con-cmd" autocomplete="off" spellcheck="false" placeholder="nvidia-smi topo -m">
+    <button class="btn ghost" type="submit">执行</button>
+  </form>
+</div>
+
+<script src="src/core/rng.js"></script>
+<script src="src/core/model.js"></script>
+<script src="src/core/place.js"></script>
+<script src="src/core/grade.js"></script>
+<script src="src/core/factory.js"></script>
+<script src="src/core/registry.js"></script>
+<script src="src/core/progress.js"></script>
+<script src="src/core/console.js"></script>
+<script src="src/core/lab.js"></script>
+<script src="src/core/ability.js"></script>
+<script src="src/renderers/matrix.js"></script>
+<script src="src/renderers/board.js"></script>
+<script src="src/renderers/calc.js"></script>
+<script src="src/renderers/choice.js"></script>
+<script src="src/renderers/sort.js"></script>
+<script src="src/renderers/match.js"></script>
+<script src="src/domains/L0/m00_m01.js"></script>
+<script src="src/domains/L1/m02_m04_m05.js"></script>
+<script src="src/domains/L1/m03_pcie.js"></script>
+<script src="src/domains/L2/m06_m09.js"></script>
+<script src="src/domains/L3/m10_m14.js"></script>
+<script src="src/domains/L4/m15_m19.js"></script>
+<script src="src/domains/L5/m20_m24.js"></script>
+<script src="src/domains/L6/m25_m27.js"></script>
+<script src="src/shell/app.js"></script>
+</body>
+</html>

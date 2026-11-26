@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>ui smoke</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+
+<script src="../src/core/rng.js"></script>
+<script src="../src/core/model.js"></script>
+<script src="../src/core/place.js"></script>
+<script src="../src/core/grade.js"></script>
+<script src="../src/core/registry.js"></script>
+<script src="../src/core/progress.js"></script>
+<script src="../src/core/console.js"></script>
+<script src="../src/core/lab.js"></script>
+<script src="../src/core/ability.js"></script>
+<script src="../src/renderers/matrix.js"></script>
+<script src="../src/renderers/board.js"></script>
+<script src="../src/renderers/calc.js"></script>
+<script src="../src/renderers/choice.js"></script>
+<script src="../src/domains/L1/m03_pcie.js"></script>
+<script src="../src/shell/app.js"></script>
+
+<script>
+(function () {
+  var out = [];
+  var fails = 0;
+  function ok(name, cond, extra) {
+    if (!cond) fails++;
+    out.push((cond ? 'PASS ' : 'FAIL ') + name + (cond ? '' : ' :: ' + (extra || '')));
+  }
+  function q(s) { return document.querySelector(s); }
+  function qa(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
+  function report() {
+    var d = document.createElement('pre');
+    d.id = 'RESULT';
+    d.textContent = '\n@@BEGIN@@\n' + out.join('\n') + '\n@@END@@\n' + (fails ? 'TOTAL FAIL ' + fails : 'TOTAL PASS');
+    document.body.appendChild(d);
+    document.title = fails ? 'FAIL' : 'OK';
+  }
+  function step(fns) {
+    var i = 0;
+    (function next() {
+      if (i >= fns.length) return;
+      var fn = fns[i++];
+      try { fn(); } catch (e) { ok('步骤异常', false, e && e.message); }
+      setTimeout(next, 40);
+    })();
+  }
+
+  function clickPart(id) {
+    var el = q('.bd-part[data-part="' + id + '"]') || q('.bd-trayitem[data-part="' + id + '"]');
+    if (!el) throw new Error('找不到零件 ' + id + '（可能已就位）');
+    el.click();
+  }
+  function clickZone(target) {
+    var sel = target.kind === 'cpu' ? '[data-zone="cpu"][data-numa="' + target.numa + '"]'
+      : target.kind === 'bridges' ? '[data-zone="bridges"][data-cpu="' + target.cpu + '"]'
+        : '[data-zone="under"][data-host="' + target.host + '"]';
+    var z = q(sel);
+    if (!z) throw new Error('找不到框 ' + sel);
+    z.click();
+  }
+
+  function currentOf(p, id) {
+    if (Object.prototype.hasOwnProperty.call(p.cpuPlacement, id)) return { kind: 'cpu', numa: p.cpuPlacement[id] };
+    if (Object.prototype.hasOwnProperty.call(p.bridges, id)) return { kind: 'bridges', cpu: p.bridges[id] };
+    if (Object.prototype.hasOwnProperty.call(p.switches, id)) return { kind: 'under', host: p.switches[id] };
+    if (p.devices[id]) return { kind: 'under', host: p.devices[id].parent };
+    return { kind: 'tray' };
+  }
+  function place(partId, target) {
+    var p = window.__campus.view().scen.player;
+    var cur = currentOf(p, partId);
+    if (cur.kind === target.kind && cur.numa === target.numa && cur.cpu === target.cpu && cur.host === target.host) return;
+    clickPart(partId);
+    clickZone(target);
+  }
+  function depthOf(m, sid) {
+    var d = 0, p = m.switches[sid];
+    while (p && m.switches[p]) { d++; p = m.switches[p]; }
+    return d;
+  }
+  function solveBoard() {
+    var m = window.__campus.view().scen.machine;
+    Object.keys(m.cpuPlacement).forEach(function (c) {
+      place(c, { kind: 'cpu', numa: m.cpuPlacement[c] });
+    });
+    Object.keys(m.bridges).forEach(function (b) {
+      place(b, { kind: 'bridges', cpu: m.bridges[b] });
+    });
+    Object.keys(m.switches)
+      .sort(function (a, b) { return depthOf(m, a) - depthOf(m, b); })
+      .forEach(function (s) {
+        place(s, { kind: 'under', host: m.switches[s] });
+      });
+    Object.keys(m.devices).forEach(function (d) {
+      place(d, { kind: 'under', host: m.devices[d].parent });
+    });
+  }
+
+  window.addEventListener('load', function () {
+    step([
+      function () {
+        TopoProgress.reset();
+        location.hash = '#/ability';
+      },
+
+      function () {
+        ok('能力雷达页打开', !!document.querySelector('svg.radar'));
+        ok('空记录时给出引导', document.body.textContent.indexOf('还没有记录') >= 0);
+        ok('七个平面各一行', document.querySelectorAll('.ab-row').length === 7);
+        ok('空记录时给出下一步', document.body.textContent.indexOf('下一步') >= 0);
+      },
+
+      function () { location.hash = '#/L1/M03/s1'; },
+
+      function () {
+        ok('模块页挂载出拼装区', !!q('#mid .bd'));
+        ok('右侧反算面板非空', q('#side') && q('#side').innerHTML.length > 80);
+        ok('托盘初始 12 个零件', qa('.bd-trayitem').length === 12, '实际 ' + qa('.bd-trayitem').length);
+        ok('题面有图例', q('.term.on').textContent.indexOf('Legend:') > 0);
+      },
+
+      function () {
+        clickPart('CPU0');
+        ok('选中零件后提示选中', q('.bd-msg') && q('.bd-msg').textContent.indexOf('已选中') >= 0);
+        var z = q('[data-zone="under"][data-host="B0"]');
+        ok('空盘时 under 框不是绿的', !z || z.className.indexOf('ok') < 0);
+      },
+
+      function () {
+        clickZone({ kind: 'cpu', numa: 0 });
+        ok('CPU0 落到 NUMA0', window.__campus.view().scen.player.cpuPlacement.CPU0 === 0);
+        ok('放好后出现桥区', !!q('[data-zone="bridges"]'));
+        ok('NUMA0 的 CPU 槽已消失', !q('[data-zone="cpu"][data-numa="0"]'));
+      },
+
+      function () {
+        var before = JSON.stringify(window.__campus.view().scen.player);
+        clickPart('B0');
+        var cpuZone = q('[data-zone="cpu"][data-numa="1"]');
+        if (cpuZone) cpuZone.click();
+        var after = JSON.stringify(window.__campus.view().scen.player);
+        ok('非法放置被拦住（桥塞不进 NUMA 槽）', before === after);
+        ok('非法放置给出中文原因', q('.bd-msg') && q('.bd-msg').className.indexOf('bad') >= 0);
+      },
+
+      function () {
+        q('#btn-undo').click();
+        ok('撤销把 CPU0 取回托盘', window.__campus.view().scen.player.cpuPlacement.CPU0 === null);
+        q('#btn-redo').click();
+        ok('重做把 CPU0 放回 NUMA0', window.__campus.view().scen.player.cpuPlacement.CPU0 === 0);
+      },
+
+      function () {
+        solveBoard();
+        ok('点击解完整题后托盘清空', qa('.bd-trayitem').length === 0, '剩 ' + qa('.bd-trayitem').length);
+      },
+
+      function () {
+        q('#btn-submit').click();
+        var fb = q('#feedback .fb');
+        ok('提交后判定通过', fb && fb.className.indexOf('ok') >= 0, fb ? fb.textContent.slice(0, 70) : 'no feedback');
+        ok('通过后解锁知识卡', !!q('.kn') && q('.kn').textContent.indexOf('PCIe 是一棵树') >= 0);
+        ok('通过后解锁 3 道小测', qa('.q').length === 3, '题目数 ' + qa('.q').length);
+      },
+
+      function () {
+        for (var i = 0; i < 3; i++) {
+          var opts = qa('input[name="q' + i + '"]');
+          if (opts.length) opts[0].checked = true;
+        }
+        q('#btn-quiz').click();
+        ok('小测判卷出结果', q('#quiz-res').textContent.indexOf('答对') >= 0);
+      },
+
+      function () { location.hash = '#/L1/M03/s2'; },
+
+      function () {
+        var scen = window.__campus.view().scen;
+        var input = q('.calc-i');
+        ok('计算题渲染出输入框', !!input);
+        input.value = String(Math.round(scen.expected));
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        q('#btn-submit').click();
+        var fb = q('#feedback .fb');
+        ok('填入正确答案判过', fb && fb.className.indexOf('ok') >= 0, fb ? fb.textContent.slice(0, 70) : 'none');
+        ok('给出算式步骤', q('#feedback').textContent.indexOf('耗时') >= 0);
+      },
+
+      function () {
+        var input = q('.calc-i');
+        input.value = String(Math.round(window.__campus.view().scen.expected / 2));
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        q('#btn-submit').click();
+        ok('填一半答案被判错', q('#feedback .fb').className.indexOf('bad') >= 0);
+      },
+
+      function () { location.hash = '#/L1/M03/s3'; },
+
+      function () {
+        var scen = window.__campus.view().scen;
+        ok('选择题渲染 4 个选项', qa('.ch-item').length === 4, '实际 ' + qa('.ch-item').length);
+        qa('.ch-item')[scen.answer].click();
+        q('#btn-submit').click();
+        ok('选对根因判过', q('#feedback .fb').className.indexOf('ok') >= 0);
+      },
+
+      function () {
+        var scen = window.__campus.view().scen;
+        qa('.ch-item')[(scen.answer + 1) % 4].click();
+        q('#btn-submit').click();
+        var fb = q('#feedback .fb');
+        ok('选错根因被判错', fb.className.indexOf('bad') >= 0);
+        ok('选错时同时给出正确答案', fb.textContent.indexOf('正确答案是') >= 0);
+      },
+
+      function () { location.hash = '#/L1/M03/s4'; },
+
+      function () {
+        var scen = window.__campus.view().scen;
+        qa('.ch-item')[scen.answer].click();
+        q('#btn-submit').click();
+        ok('最优方案满分', q('#feedback .fb').className.indexOf('ok') >= 0);
+      },
+
+      function () {
+        var scen = window.__campus.view().scen;
+        var sub = -1;
+        scen.options.forEach(function (o, i) { if (o.penalty === 4) sub = i; });
+        qa('.ch-item')[sub].click();
+        q('#btn-submit').click();
+        var fb = q('#feedback .fb');
+        ok('次优方案算通过', fb.className.indexOf('ok') >= 0);
+        ok('次优方案说明代价', fb.textContent.indexOf('次优') >= 0);
+      },
+
+      function () { location.hash = '#/L1/M03/s1'; },
+
+      function () {
+        var cb = q('#hard');
+        ok('s1 有难版开关', !!cb);
+        cb.checked = true;
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+      },
+
+      function () {
+        ok('切到 8 卡难版', window.__campus.view().scen.machine.meta.gpuCount === 8,
+          'gpu=' + window.__campus.view().scen.machine.meta.gpuCount);
+        ok('难版托盘零件更多', qa('.bd-trayitem').length >= 16, '实际 ' + qa('.bd-trayitem').length);
+      },
+
+      function () {
+        solveBoard();
+        q('#btn-submit').click();
+        var fb = q('#feedback .fb');
+        ok('难版也能点击解出', fb && fb.className.indexOf('ok') >= 0,
+          fb ? fb.textContent.slice(0, 70) : 'none');
+      },
+
+      function () { location.hash = '#/L1'; },
+
+      function () {
+        ok('平面页出现 4 张模块卡', qa('.card').length === 4, '实际 ' + qa('.card').length);
+        ok('M04-M05 保持未开放', qa('.card.soon').length === 3);
+        ok('M03 显示已通关数', q('.card.live .card-go').textContent.indexOf('已通') >= 0);
+      },
+
+      function () { location.hash = '#/'; },
+
+      function () {
+        ok('地图页 7 个平面', qa('.map-row').length === 7);
+        ok('只有 L1 可进入', qa('.map-row.live').length === 1);
+        ok('统计模块总数 28', q('.hero-kpi').textContent.indexOf('28') > 0);
+      },
+
+      function () { location.hash = '#/L1/M03/s1'; },
+
+      function () {
+        ok('终端按钮存在', !!q('#btn-term'));
+        q('#btn-term').click();
+        ok('终端可以打开', !!q('#con') && q('#con').classList.contains('on'));
+        ok('打开时有 banner', q('#con-out').textContent.length > 20);
+        ok('banner 说明这是真实现场', q('#con-out').textContent.indexOf('真实现场') >= 0);
+      },
+
+      function () {
+        var i = q('#con-cmd');
+        i.value = 'nvidia-smi topo -m';
+        q('#con-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      },
+
+      function () {
+        var t = q('#con-out').textContent;
+        ok('topo 命令有输出', t.indexOf('Legend:') > 0);
+        ok('输出里有 GPU0', t.indexOf('GPU0') > 0);
+        var i = q('#con-cmd');
+        i.value = 'nvidia-smi';
+        q('#con-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      },
+
+      function () {
+        var t = q('#con-out').textContent;
+        ok('nvidia-smi 有表头', t.indexOf('NVIDIA-SMI') > 0);
+        ok('nvidia-smi 有卡信息', t.indexOf('80GB') > 0);
+        var i = q('#con-cmd');
+        i.value = 'not-a-command';
+        q('#con-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      },
+
+      function () {
+        ok('未知命令有提示', q('#con-out').textContent.indexOf('command not found') >= 0);
+        q('#con-close').click();
+        ok('终端可以收起', !q('#con').classList.contains('on'), 'class=' + q('#con').className);
+      },
+
+      function () { location.hash = '#/L1/M03/s1'; },
+
+      function () {
+        ok('换关后终端 host 复位', q('#con-host').textContent.length > 0);
+      },
+
+      report
+    ]);
+  });
+})();
+</script>
+</body>
+</html>
